@@ -171,7 +171,7 @@ class SocketService {
                         const consumer = await consumerTransport.consume({
                             producerId: remoteProducerId,
                             rtpCapabilities,
-                            paused: false,
+                            paused: true,
                         })
 
                         consumer.on('transportclose', () => {
@@ -188,13 +188,6 @@ class SocketService {
                             consumer.close()
                             consumerContainer.removeByConsumerId(consumer.id)
                         })
-
-
-
-                        console.log('new consumer created',consumer.id)
-
-
-                        
 
                         this.addConsumer(consumer, room_id,socket.id);
 
@@ -222,7 +215,7 @@ class SocketService {
             });
 
             socket.on(CONSUME_RESUME,async ({ serverConsumerId }) => {
-               const consumer = consumerContainer.findConsumerId(serverConsumerId);
+               const consumer = consumerContainer.findConsumerId(serverConsumerId);              
                await consumer?.resume();
             })
 

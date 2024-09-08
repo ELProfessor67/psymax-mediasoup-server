@@ -42,7 +42,8 @@ class ConsumerService {
     }
 
     findConsumerId(consumerId:string):mediasoup.types.Consumer{
-        const consumer: Consumer | undefined = this.consumers.find((consumer) => consumer.consumer.id !== consumerId);
+        const consumer: Consumer | undefined = this.consumers.find((consumer) => consumer.consumer.id == consumerId);
+       
         return consumer?.consumer
     }
 
