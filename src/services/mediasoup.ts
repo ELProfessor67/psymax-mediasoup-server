@@ -22,7 +22,7 @@ class MediasoupService {
       logLevel: 'warn',
       logTags: ['info', 'ice', 'dtls', 'rtp', 'srtp', 'rtcp'],
       rtcMinPort: 2000,
-      rtcMaxPort: 10000,
+      rtcMaxPort: 2020,
     });
 
     console.log('Worker created, PID:', worker.pid);
