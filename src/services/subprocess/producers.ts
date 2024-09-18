@@ -42,7 +42,7 @@ class ProducerService {
         this.producers = this.producers.filter((producer:Producer) => producer.socketId != socketId);
     }
 
-    getProducer(socketId:string):mediasoup.types.Producer{
+    getProducer(socketId:string):mediasoup.types.Producer | undefined{
         const producer:Producer | undefined = this.producers.find((producer:Producer) => producer.socketId == socketId);
         return producer?.producer;
     }

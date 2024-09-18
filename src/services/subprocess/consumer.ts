@@ -41,13 +41,13 @@ class ConsumerService {
         this.consumers = this.consumers.filter((consumer) => consumer.consumer.id !== consumerId);
     }
 
-    findConsumerId(consumerId:string):mediasoup.types.Consumer{
+    findConsumerId(consumerId:string):mediasoup.types.Consumer | undefined{
         const consumer: Consumer | undefined = this.consumers.find((consumer) => consumer.consumer.id == consumerId);
        
         return consumer?.consumer
     }
 
-    getConsumer(socketId:string):mediasoup.types.Consumer{
+    getConsumer(socketId:string):mediasoup.types.Consumer | undefined{
         const consumer:Consumer | undefined = this.consumers.find((consumer:Consumer) => consumer.socketId == socketId);
         return consumer?.consumer;
     }

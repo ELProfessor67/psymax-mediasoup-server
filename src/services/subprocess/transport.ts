@@ -2,11 +2,11 @@ import * as mediasoup from 'mediasoup'
 
 export class Transport {
     public socketId:string
-    public transport: mediasoup.types.transport
+    public transport: mediasoup.types.WebRtcTransport
     public room_id:string
     public consumer: Boolean
 
-    constructor(socketId:string,transport: mediasoup.types.transport,room_id:string,consumer: Boolean){
+    constructor(socketId:string,transport: mediasoup.types.WebRtcTransport,room_id:string,consumer: Boolean){
         this.consumer = consumer;
         this.transport = transport;
         this.room_id = room_id;
@@ -40,7 +40,7 @@ class TransportService {
         this.transports = this.transports.filter((transport) => transport.transport.id !== transportId);
     }
 
-    getTranport(socketId:string):mediasoup.types.transport{
+    getTranport(socketId:string):mediasoup.types.WebRtcTransport | undefined{
         const transport:Transport | undefined = this.transports.find((transport:Transport) => transport.socketId == socketId);
         return transport?.transport;
     }

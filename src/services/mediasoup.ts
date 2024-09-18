@@ -1,4 +1,5 @@
 import * as mediasoup from 'mediasoup';
+import { RtpCodecCapability } from 'mediasoup/node/lib/RtpParameters.js';
 import os from 'os';
 
 class MediasoupService {
@@ -49,7 +50,7 @@ class MediasoupService {
     }
 
     const worker = this.worker;
-    const mediaCodecs = [
+    const mediaCodecs:RtpCodecCapability[] = [
       {
         kind: 'audio',
         mimeType: 'audio/opus',

@@ -1,10 +1,11 @@
 import * as mediasoup from 'mediasoup';
+import { AppData } from 'mediasoup/node/lib/types.js';
 
 class PeerService {
     public socketId: string;
-    public transports: mediasoup.types.transport[] = [];
-    public producers: mediasoup.types.producer[] = [];
-    public consumers: mediasoup.types.consumer[] = [];
+    public transports: string[] = [];
+    public producers: string[] = [];
+    public consumers: string[] = [];
     public username: string;
     public isAdmin: Boolean;
     public room_id: string;

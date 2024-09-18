@@ -1,11 +1,17 @@
 import * as mediasoup from 'mediasoup'
 import mediasoupService from './mediasoup.js';
+import { isErrored } from 'stream';
+import { IceParameters } from 'mediasoup/node/lib/fbs/web-rtc-transport.js';
+import { DtlsParameters, IceCandidate, WebRtcTransport } from 'mediasoup/node/lib/types.js';
+import { Transport } from './subprocess/transport.js';
+
+
 
 
 class RoomsService {
-    public router: mediasoup.types.router;
+    public router: mediasoup.types.Router;
     public participants: string[] = [];
-    constructor(router:mediasoup.types.router,socketId:string){
+    constructor(router:mediasoup.types.Router,socketId:string){
         this.router = router;
         this.participants = [socketId];
     }
@@ -17,7 +23,7 @@ class RoomsService {
 
 
 
-    async createWebRtcTransport ():Promise<mediasoup.types.transport | Error> {
+    async createWebRtcTransport ():Promise<WebRtcTransport> {
         const router = this.router;
         return new Promise(async (resolve, reject) => {
           try {
@@ -37,17 +43,18 @@ class RoomsService {
             }
       
            
-            let transport:mediasoup.types.transport = await router.createWebRtcTransport(webRtcTransport_options);
+            let transport:WebRtcTransport = await router.createWebRtcTransport(webRtcTransport_options);
+            
 
             console.log(`transport id: ${transport.id}`)
       
-            transport.on('dtlsstatechange', (dtlsState:mediasoup.types.dtlsState) => {
+            transport.on('dtlsstatechange', (dtlsState:mediasoup.types.DtlsState) => {
               if (dtlsState === 'closed') {
                 transport.close()
               }
             })
       
-            transport.on('close', () => {
+            transport.on('@close', () => {
               console.log('transport closed')
             })
       

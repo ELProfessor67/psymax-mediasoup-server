@@ -3,12 +3,13 @@ import mediasoupService from "./mediasoup.js";
 import { CONNECT_TRANSPORT, CONSUME, CONSUME_RESUME, CREATE_WEBRTC_TRANSPORT, DISCONNECT, GET_PRODUCERS, JOIN_ROOM, MUTE_UNMUTE, NEW_PARTCIPANT_JOIN, NEW_PRODUCER, PARTICIPANTS_DISCONNECT, PRODUCE_TRANSPORT, TRANSPORT_RECV_CONNECT } from "../constant/events.js";
 import { consumerContainer, peers, producersContainer, rooms, transportsContainer } from "../glabalVariable.js";
 import * as mediasoup from 'mediasoup';
-import RoomsService from "./Rooms.js";
+
 import PeerService from "./Peer.js";
 import { Transport } from "./subprocess/transport.js";
 import { Producer } from "./subprocess/producers.js";
 import { Router } from "mediasoup/node/lib/types.js";
 import { Consumer } from "./subprocess/consumer.js";
+import RoomsService from "./Rooms.js";
 
 class SocketService {
     private _io: Server;
@@ -40,7 +41,7 @@ class SocketService {
                 const isAdmin = rooms.get(room_id) ? false : true;
                 const newPeer: PeerService = new PeerService(socket.id, isAdmin, username, room_id,isWebCamMute,isMicMute);
                 peers.set(socket.id, newPeer);
-                const rtpCapabilities: mediasoup.types.rtpCapabilities = router.rtpCapabilities;
+                const rtpCapabilities: mediasoup.types.RtpCapabilities = router.rtpCapabilities;
 
 
                 const participants: PeerService[] = [];
@@ -78,7 +79,8 @@ class SocketService {
                 const room_id = peers.get(socket.id).room_id;
                 const roomRef: RoomsService = rooms.get(room_id);
 
-                roomRef.createWebRtcTransport().then(transport => {
+                roomRef.createWebRtcTransport().then((transport) => {
+                    
                     callback({
                         params: {
                             id: transport.id,
@@ -104,16 +106,20 @@ class SocketService {
 
 
             socket.on(CONNECT_TRANSPORT, async ({ dtlsParameters }) => {
-                await transportsContainer.getTranport(socket.id).connect({ dtlsParameters });
+                await transportsContainer.getTranport(socket.id)?.connect({ dtlsParameters });
             });
 
 
             socket.on(PRODUCE_TRANSPORT, async ({ kind, rtpParameters, appData }, callback) => {
 
-                const producer = await transportsContainer.getTranport(socket.id).produce({
+                const producer = await transportsContainer.getTranport(socket.id)?.produce({
                     kind,
                     rtpParameters,
                 })
+
+                if(!producer){
+                    return
+                }
 
 
 
@@ -153,7 +159,7 @@ class SocketService {
             socket.on(TRANSPORT_RECV_CONNECT, async ({ dtlsParameters, serverConsumerTransportId }) => {
                 console.log(`DTLS PARAMS: ${dtlsParameters}`)
                 const consumerTransport = transportsContainer.getTransportById(serverConsumerTransportId);
-                await consumerTransport.connect({ dtlsParameters });
+                await consumerTransport?.connect({ dtlsParameters });
             })
 
 
@@ -162,17 +168,24 @@ class SocketService {
                     const room_id: string = peers.get(socket.id).room_id;
                     const router: Router = rooms.get(room_id).router;
                     const consumerTransport = transportsContainer.getTransportById(serverConsumerTransportId);
+                    if(!consumerTransport){
+                        return
+                    }
 
                     if (router.canConsume({
                         producerId: remoteProducerId,
                         rtpCapabilities
                     })) {
                         // transport can now consume and return a consumer
-                        const consumer = await consumerTransport.consume({
+                        const consumer = await consumerTransport?.consume({
                             producerId: remoteProducerId,
                             rtpCapabilities,
                             paused: true,
                         })
+
+                        if(!consumer){
+                            return
+                        }
 
                         consumer.on('transportclose', () => {
                             console.log('transport close from consumer')
@@ -182,7 +195,7 @@ class SocketService {
                             console.log('producer of consumer closed')
                             socket.emit('producer-closed', { remoteProducerId })
 
-                            consumerTransport.close([])
+                            consumerTransport.close()
 
                             transportsContainer.removeByTransportId(consumerTransport.id)
                             consumer.close()
@@ -240,8 +253,8 @@ class SocketService {
         })
     }
 
-    private async createRoom(room_id: string, socketId: string): mediasoup.types.router {
-        let router: mediasoup.types.router;
+    private async createRoom(room_id: string, socketId: string): Promise<mediasoup.types.Router> {
+        let router: mediasoup.types.Router;
         if (rooms.get(room_id)) {
             const roomRef: RoomsService = rooms.get(room_id);
             roomRef.addParticipants(socketId);
@@ -257,7 +270,7 @@ class SocketService {
 
 
 
-    private addTransport(transport: mediasoup.types.transport, room_id: string, consumer: Boolean, socketId: string) {
+    private addTransport(transport: mediasoup.types.WebRtcTransport, room_id: string, consumer: Boolean, socketId: string) {
 
         const transportRef: Transport = new Transport(socketId, transport, room_id, consumer);
         transportsContainer.addTransport(transportRef);
