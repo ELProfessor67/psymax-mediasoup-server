@@ -5,6 +5,8 @@ import socketService from './services/socket.js';
 import RoomRouter from './routers/room.js'
 
 
+
+
 config({path: '.env'});
 const app = express();
 app.use(RoomRouter);
@@ -20,6 +22,7 @@ const httpSever = http.createServer(app);
 
 //init socket
 socketService.io.attach(httpSever);
+
 
 //init mediasoup listners
 socketService.initMediasoupListners();

@@ -13,7 +13,7 @@ import RoomsService from "./Rooms.js";
 
 class SocketService {
     private _io: Server;
-    private mediasoupConnection;
+    // private mediasoupConnection;
 
     constructor() {
         console.log('Init Socker Services');
@@ -23,7 +23,7 @@ class SocketService {
                 origin: '*'
             }
         });
-        this.mediasoupConnection = this._io.of('/mediasoup');
+        // this.mediasoupConnection = this._io.of('/mediasoup');
     }
 
     get io() {
@@ -32,7 +32,7 @@ class SocketService {
 
     initMediasoupListners() {
         console.log('init Mediasoup Services');
-        const connection = this.mediasoupConnection;
+        const connection = this._io;
         connection.on('connection', (socket) => {
             console.log('user connect ', socket.id);
             socket.on(JOIN_ROOM, async ({ room_id, username,isMicMute,isWebCamMute }, callback) => {

@@ -27,7 +27,7 @@ class RoomsService {
         const router = this.router;
         return new Promise(async (resolve, reject) => {
           try {
-            
+            console.log(process.env.PUBLIC_IP,'Public IP')
             const webRtcTransport_options = {
               listenIps: [
                 {
