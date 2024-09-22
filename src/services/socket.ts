@@ -7,7 +7,7 @@ import * as mediasoup from 'mediasoup';
 import PeerService from "./Peer.js";
 import { Transport } from "./subprocess/transport.js";
 import { Producer } from "./subprocess/producers.js";
-import { Router } from "mediasoup/node/lib/types.js";
+import { Router, WebRtcTransport } from "mediasoup/node/lib/types.js";
 import { Consumer } from "./subprocess/consumer.js";
 import RoomsService from "./Rooms.js";
 
@@ -106,7 +106,12 @@ class SocketService {
 
 
             socket.on(CONNECT_TRANSPORT, async ({ dtlsParameters }) => {
-                await transportsContainer.getTranport(socket.id)?.connect({ dtlsParameters });
+                try {
+                    
+                    await transportsContainer.getTranport(socket.id)?.connect({ dtlsParameters });
+                } catch (error) {
+                    console.log('error:',(error as Error).message)
+                }
             });
 
 
@@ -159,7 +164,11 @@ class SocketService {
             socket.on(TRANSPORT_RECV_CONNECT, async ({ dtlsParameters, serverConsumerTransportId }) => {
                 console.log(`DTLS PARAMS: ${dtlsParameters}`)
                 const consumerTransport = transportsContainer.getTransportById(serverConsumerTransportId);
-                await consumerTransport?.connect({ dtlsParameters });
+                try {
+                    await consumerTransport?.connect({ dtlsParameters });
+                } catch (error) {
+                    console.log('error:',(error as Error).message)
+                }
             })
 
 
